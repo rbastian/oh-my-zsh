@@ -1,7 +1,6 @@
 setopt EXTENDED_HISTORY
 autoload -Uz compinit
 compinit
-fpath=(~/.zsh $fpath)
 
 #source ~/.git-prompt.sh
 #setopt PROMPT_SUBST ; PS1='[%n@%m %c$(__git_ps1 " (%s)")]\$ '
@@ -9,7 +8,7 @@ fpath=(~/.zsh $fpath)
 #source ~/.git-completion.zsh
 
 # direnv
-eval "$(direnv hook zsh)"
+if (( $+commands[direnv] )); then eval "$(direnv hook zsh)"; fi
 
 # Simple git branch in prompt (zsh native)
 autoload -Uz vcs_info
@@ -19,39 +18,23 @@ zstyle ':vcs_info:*' enable git
 setopt PROMPT_SUBST
 PS1='[%n@%m %c${vcs_info_msg_0_}]\$ '
 
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/robert.bastian/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/robert.bastian/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/robert.bastian/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f "$HOME/Downloads/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/Downloads/google-cloud-sdk/path.zsh.inc"; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/Users/robert.bastian/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/robert.bastian/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+if [ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc"; fi
 
 # Add timestamps to the history
 export HIST_STAMPS="yyyy-mm-dd"
 
 # WarpStream
-export PATH="/Users/robert.bastian/.warpstream:$PATH"
+export PATH="$HOME/.warpstream:$PATH"
 
 # NPM
 export PATH=~/.npm-global/bin:$PATH
-
-# CLAUDE BEDROCK
-export AWS_PROFILE=rbastian-pr-prod
-export ANTHROPIC_MODEL=global.anthropic.claude-sonnet-4-5-20250929-v1:0
-export ANTHROPIC_DEFAULT_OPUS_MODEL=global.anthropic.claude-opus-4-5-20251101-v1:0
-#export ANTHROPIC_MODEL=us.anthropic.claude-sonnet-4-20250514-v1:0
-#export ANTHROPIC_MODEL=us.anthropic.claude-3-7-sonnet-20250219-v1:0
-export CLAUDE_CODE_USE_BEDROCK=1
-export DISABLE_PROMPT_CACHING=0
-
-# Aliasing
-alias awsloginprod='aws sso login --profile rbastian-pr-prod && eval $(aws configure export-credentials --profile rbastian-pr-prod --format env)'
-
 
 # auto-completion
 #if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
@@ -73,8 +56,6 @@ alias awsloginprod='aws sso login --profile rbastian-pr-prod && eval $(aws confi
 #unset __conda_setup
 # <<< conda initialize <<<
 
-. "$HOME/.turso/env"
-
 # AWS LOGIN
 awslogin() {
   local profile="$1"
@@ -82,5 +63,12 @@ awslogin() {
     echo "usage: awslogin <profile>"
     return 1
   fi
-  aws sso login --profile "$profile" && eval "$(aws configure export-credentials --profile "$profile" --format env)"
+  # Clear first so a failed login can't leave the previous account active
+  unset AWS_PROFILE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_CREDENTIAL_EXPIRATION
+  aws sso login --profile "$profile" || return
+  eval "$(aws configure export-credentials --profile "$profile" --format env)" || return
+  export AWS_PROFILE="$profile"
 }
+
+# Machine-specific settings (not tracked, see zshrc.local.example)
+if [ -f "$HOME/.zshrc.local" ]; then . "$HOME/.zshrc.local"; fi

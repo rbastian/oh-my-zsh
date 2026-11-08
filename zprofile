@@ -1,5 +1,5 @@
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if [ -x /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
 #source ~/.git-completion.sh
 #source ~/.git-completion.zsh
 #source "/Users/robert.bastian/github.com/emsdk/emsdk_env.sh"

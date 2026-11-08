@@ -1,0 +1,10 @@
+# Copy to ~/.zshrc.local and uncomment what this machine needs. That file is not tracked.
+
+# Rancher Desktop
+#export PATH="$HOME/.rd/bin:$PATH"
+
+# Turso
+#if [ -f "$HOME/.turso/env" ]; then . "$HOME/.turso/env"; fi
+
+# AWS account shortcuts
+#alias awsloginprod='awslogin my-prod-profile'
